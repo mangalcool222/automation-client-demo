@@ -1,21 +1,65 @@
 import React, { useState } from 'react';
-import { ArrowRight, Bot, CheckCircle2, Clock, Cpu, MessageSquare, Play, Send, ShieldCheck, Sparkles, UserCheck, Zap, Radio, Database } from 'lucide-react';
+import { ArrowRight, Bot, CheckCircle2, Clock, Cpu, MessageSquare, Play, Send, ShieldCheck, Sparkles, UserCheck, Zap, Radio, Database, Layers, LayoutTemplate } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function LeadSimulatorApp() {
-  const [formData, setFormData] = useState({
-    name: 'Alexander Wright',
-    phone: '+971 50 987 6543',
-    email: 'alexander@dubai-investor.ae',
-    budgetUSD: '$850,000 - $1.5M',
-    budgetINR: '₹7.0 Cr - ₹12.5 Cr',
-    project: 'Dubai Marina Luxury Off-Plan Penthouse',
-  });
+  const templates = [
+    {
+      id: 'dubai-usd',
+      name: '🏛️ Global Luxury Real Estate ($ USD)',
+      currency: 'USD',
+      data: {
+        name: 'Alexander Wright',
+        phone: '+971 50 987 6543',
+        email: 'alexander@dubai-investor.ae',
+        project: 'Dubai Marina Luxury Off-Plan Penthouse',
+        budgetUSD: '$850,000 - $1.5M',
+        budgetINR: '₹7.0 Cr - ₹12.5 Cr',
+      }
+    },
+    {
+      id: 'india-inr',
+      name: '🏙️ Indian High-Ticket Real Estate (₹ INR)',
+      currency: 'INR',
+      data: {
+        name: 'Rajesh Malhotra',
+        phone: '+91 98110 44221',
+        email: 'rajesh@malhotrainfra.com',
+        project: 'Golf Course Road Luxury Penthouse (Gurugram)',
+        budgetUSD: '$1.5 Million',
+        budgetINR: '₹12.5 Crore',
+      }
+    },
+    {
+      id: 'b2b-saas',
+      name: '🚀 B2B SaaS / Agency Audit ($ & ₹)',
+      currency: 'USD',
+      data: {
+        name: 'Julian Thorne',
+        phone: '+1 (305) 555-0188',
+        email: 'julian@miamiwaterfront.com',
+        project: 'Meta Ad Lead Automation Engine Audit',
+        budgetUSD: '$3,000 / month Retainer',
+        budgetINR: '₹2.5 Lakh / month Retainer',
+      }
+    }
+  ];
 
+  const [activeTemplate, setActiveTemplate] = useState('dubai-usd');
+  const [formData, setFormData] = useState(templates[0].data);
   const [currencyMode, setCurrencyMode] = useState('USD');
   const [pipelineState, setPipelineState] = useState('idle'); // idle | processing | complete
   const [activeNodeStep, setActiveNodeStep] = useState(0); // 0: idle, 1: webhook, 2: ai, 3: whatsapp, 4: telegram, 5: sheet
   const [logs, setLogs] = useState([]);
+
+  const handleSelectTemplate = (template) => {
+    setActiveTemplate(template.id);
+    setFormData(template.data);
+    setCurrencyMode(template.currency);
+    setPipelineState('idle');
+    setActiveNodeStep(0);
+    setLogs([]);
+  };
 
   const handleTriggerPipeline = () => {
     setPipelineState('processing');
@@ -107,7 +151,7 @@ export default function LeadSimulatorApp() {
                 TRACKKARO <span className="text-zinc-400 font-normal">AI</span>
               </h1>
               <span className="bg-zinc-900 text-zinc-300 text-[9px] font-mono px-2 py-0.5 rounded-full border border-zinc-700 font-bold uppercase tracking-widest">
-                DEMO ENGINE
+                LIVE TEMPLATE DEMO
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 font-medium">3-Second High-Ticket Lead Automation Engine</p>
@@ -137,7 +181,7 @@ export default function LeadSimulatorApp() {
 
           <div className="hidden md:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full text-xs text-emerald-400 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            n8n & Meta Cloud API Online
+            Meta API Online
           </div>
         </div>
       </header>
@@ -164,7 +208,30 @@ export default function LeadSimulatorApp() {
           Submit a test lead below to see how our 3-second automation triggers live WhatsApp brochures & Telegram alerts.
         </p>
 
-        {/* Feature Highlight Badges Requested by User */}
+        {/* Live Industry Template Switcher Bar */}
+        <div className="pt-2 max-w-3xl mx-auto">
+          <div className="text-xs font-mono text-zinc-400 mb-2 flex items-center justify-center gap-2">
+            <LayoutTemplate className="w-4 h-4 text-cyan-400" />
+            <span>Select Live Industry Template to Pre-fill Data:</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {templates.map((tpl) => (
+              <button
+                key={tpl.id}
+                onClick={() => handleSelectTemplate(tpl)}
+                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                  activeTemplate === tpl.id
+                    ? 'bg-zinc-800 text-white border-white shadow-lg ring-1 ring-white/20'
+                    : 'bg-zinc-950/60 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-white'
+                }`}
+              >
+                {tpl.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Feature Highlight Badges */}
         <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-zinc-300">
           <div className="flex items-center gap-2 bg-zinc-900 px-3.5 py-2 rounded-xl border border-zinc-800 shadow-sm">
             <MessageSquare className="w-4 h-4 text-emerald-400" />
@@ -225,7 +292,7 @@ export default function LeadSimulatorApp() {
 
             <div className="space-y-3">
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">Prospect Full Name</label>
+                <label className="text-[11px] font-mono text-zinc-400">Prospect Name</label>
                 <input
                   type="text"
                   value={formData.name}
