@@ -9,9 +9,9 @@ export default function LeadSimulatorApp() {
       name: '🏛️ Global Luxury Real Estate ($ USD)',
       currency: 'USD',
       data: {
-        name: 'Alexander Wright',
-        phone: '+971 50 987 6543',
-        email: 'alexander@dubai-investor.ae',
+        name: 'Alexander Wright (Demo Lead)',
+        phone: '+971 50 000 9999',
+        email: 'alexander.demo@example.com',
         project: 'Dubai Marina Luxury Off-Plan Penthouse',
         budgetUSD: '$850,000 - $1.5M',
         budgetINR: '₹7.0 Cr - ₹12.5 Cr',
@@ -22,9 +22,9 @@ export default function LeadSimulatorApp() {
       name: '🏙️ Indian High-Ticket Real Estate (₹ INR)',
       currency: 'INR',
       data: {
-        name: 'Rajesh Malhotra',
-        phone: '+91 98110 44221',
-        email: 'rajesh@malhotrainfra.com',
+        name: 'Rajesh Malhotra (Demo Lead)',
+        phone: '+91 98000 00000',
+        email: 'rajesh.demo@example.com',
         project: 'Golf Course Road Luxury Penthouse (Gurugram)',
         budgetUSD: '$1.5 Million',
         budgetINR: '₹12.5 Crore',
@@ -35,9 +35,9 @@ export default function LeadSimulatorApp() {
       name: '🚀 B2B SaaS / Agency Audit ($ & ₹)',
       currency: 'USD',
       data: {
-        name: 'Julian Thorne',
-        phone: '+1 (305) 555-0188',
-        email: 'julian@miamiwaterfront.com',
+        name: 'Julian Thorne (Demo Lead)',
+        phone: '+1 (555) 019-2831',
+        email: 'julian.demo@example.com',
         project: 'Meta Ad Lead Automation Engine Audit',
         budgetUSD: '$3,000 / month Retainer',
         budgetINR: '₹2.5 Lakh / month Retainer',
@@ -61,7 +61,26 @@ export default function LeadSimulatorApp() {
     setLogs([]);
   };
 
+  const handleClearForm = () => {
+    setFormData({
+      name: '',
+      phone: '',
+      email: '',
+      project: '',
+      budgetUSD: '',
+      budgetINR: '',
+    });
+    setPipelineState('idle');
+    setActiveNodeStep(0);
+    setLogs([]);
+  };
+
   const handleTriggerPipeline = () => {
+    if (!formData.name || !formData.phone) {
+      alert('Please enter a Prospect Name and Phone Number to test the pipeline.');
+      return;
+    }
+
     setPipelineState('processing');
     setActiveNodeStep(1);
     setLogs([]);
@@ -151,7 +170,7 @@ export default function LeadSimulatorApp() {
                 TRACKKARO <span className="text-zinc-400 font-normal">AI</span>
               </h1>
               <span className="bg-zinc-900 text-zinc-300 text-[9px] font-mono px-2 py-0.5 rounded-full border border-zinc-700 font-bold uppercase tracking-widest">
-                LIVE TEMPLATE DEMO
+                LIVE DEMO ENGINE
               </span>
             </div>
             <p className="text-[11px] text-zinc-400 font-medium">3-Second High-Ticket Lead Automation Engine</p>
@@ -212,7 +231,7 @@ export default function LeadSimulatorApp() {
         <div className="pt-2 max-w-3xl mx-auto">
           <div className="text-xs font-mono text-zinc-400 mb-2 flex items-center justify-center gap-2">
             <LayoutTemplate className="w-4 h-4 text-cyan-400" />
-            <span>Select Live Industry Template to Pre-fill Data:</span>
+            <span>Select Demo Template or Enter Custom Test Data:</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {templates.map((tpl) => (
@@ -287,14 +306,20 @@ export default function LeadSimulatorApp() {
                 <UserCheck className="w-4 h-4 text-cyan-400" />
                 Submit Test Lead (Meta Ad Form)
               </span>
-              <span className="text-[10px] font-mono text-zinc-500">Inbound Webhook</span>
+              <button
+                onClick={handleClearForm}
+                className="text-[10px] font-mono text-zinc-400 hover:text-white underline cursor-pointer"
+              >
+                Clear Fields
+              </button>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">Prospect Name</label>
+                <label className="text-[11px] font-mono text-zinc-400">Prospect Full Name</label>
                 <input
                   type="text"
+                  placeholder="e.g. John Doe (Demo Lead)"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-medium"
@@ -302,9 +327,10 @@ export default function LeadSimulatorApp() {
               </div>
 
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">WhatsApp Phone Number</label>
+                <label className="text-[11px] font-mono text-zinc-400">WhatsApp Phone Number (Test)</label>
                 <input
                   type="text"
+                  placeholder="e.g. +1 555-019-2831"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-mono"
@@ -315,6 +341,7 @@ export default function LeadSimulatorApp() {
                 <label className="text-[11px] font-mono text-zinc-400">Target Project / Interest</label>
                 <input
                   type="text"
+                  placeholder="e.g. Luxury Off-Plan Penthouse"
                   value={formData.project}
                   onChange={(e) => setFormData({ ...formData, project: e.target.value })}
                   className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-medium"
@@ -325,6 +352,7 @@ export default function LeadSimulatorApp() {
                 <label className="text-[11px] font-mono text-zinc-400">Target Investment Budget</label>
                 <input
                   type="text"
+                  placeholder="e.g. $850,000 - $1.5M or ₹5 Crore"
                   value={currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR}
                   onChange={(e) =>
                     currencyMode === 'USD'
