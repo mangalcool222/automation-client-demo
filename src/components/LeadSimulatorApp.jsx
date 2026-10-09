@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
-import { ArrowRight, Bot, CheckCircle2, Clock, Cpu, MessageSquare, Play, Send, ShieldCheck, Sparkles, UserCheck, Zap, Radio, Database, Layers, LayoutTemplate } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { 
+  ArrowRight, Bot, CheckCircle2, Clock, Cpu, MessageSquare, Play, Send, 
+  ShieldCheck, Sparkles, UserCheck, Zap, Radio, Database, Layers, 
+  LayoutTemplate, Smartphone, RefreshCw, AlertCircle, Mail, User, Check, 
+  FileText, ExternalLink, PhoneCall, CheckCheck, Building2, Building, Briefcase, Sun, Moon
+} from 'lucide-react';
 import confetti from 'canvas-confetti';
+import N8nCanvasFlow from './N8nCanvasFlow';
+import TelemetryDrawer from './TelemetryDrawer';
+import RevenueLeakAudit from './RevenueLeakAudit';
 
 export default function LeadSimulatorApp() {
   const templates = [
     {
       id: 'dubai-usd',
-      name: '🏛️ Global Luxury Real Estate ($ USD)',
+      name: 'Real Estate Lead ($ USD)',
+      icon: Building2,
       currency: 'USD',
       data: {
-        name: 'Alexander Wright (Demo Lead)',
+        name: 'Alexander Wright (Sample Lead)',
         phone: '+971 50 000 9999',
-        email: 'alexander.demo@example.com',
+        email: 'alexander.sample@example.com',
         project: 'Dubai Marina Luxury Off-Plan Penthouse',
         budgetUSD: '$850,000 - $1.5M',
         budgetINR: '₹7.0 Cr - ₹12.5 Cr',
@@ -19,12 +28,13 @@ export default function LeadSimulatorApp() {
     },
     {
       id: 'india-inr',
-      name: '🏙️ Indian High-Ticket Real Estate (₹ INR)',
+      name: 'Real Estate Lead (₹ INR)',
+      icon: Building,
       currency: 'INR',
       data: {
-        name: 'Rajesh Malhotra (Demo Lead)',
+        name: 'Rajesh Malhotra (Sample Lead)',
         phone: '+91 98000 00000',
-        email: 'rajesh.demo@example.com',
+        email: 'rajesh.sample@example.com',
         project: 'Golf Course Road Luxury Penthouse (Gurugram)',
         budgetUSD: '$1.5 Million',
         budgetINR: '₹12.5 Crore',
@@ -32,12 +42,13 @@ export default function LeadSimulatorApp() {
     },
     {
       id: 'b2b-saas',
-      name: '🚀 B2B SaaS / Agency Audit ($ & ₹)',
+      name: 'B2B SaaS / Agency Lead',
+      icon: Briefcase,
       currency: 'USD',
       data: {
-        name: 'Julian Thorne (Demo Lead)',
+        name: 'Julian Thorne (Sample Lead)',
         phone: '+1 (555) 019-2831',
-        email: 'julian.demo@example.com',
+        email: 'julian.sample@example.com',
         project: 'Meta Ad Lead Automation Engine Audit',
         budgetUSD: '$3,000 / month Retainer',
         budgetINR: '₹2.5 Lakh / month Retainer',
@@ -48,9 +59,19 @@ export default function LeadSimulatorApp() {
   const [activeTemplate, setActiveTemplate] = useState('dubai-usd');
   const [formData, setFormData] = useState(templates[0].data);
   const [currencyMode, setCurrencyMode] = useState('USD');
+  const [themeMode, setThemeMode] = useState('light'); // 'light' (default for real estate/clinics) | 'dark'
   const [pipelineState, setPipelineState] = useState('idle'); // idle | processing | complete
-  const [activeNodeStep, setActiveNodeStep] = useState(0); // 0: idle, 1: webhook, 2: ai, 3: whatsapp, 4: telegram, 5: sheet
+  const [activeNodeStep, setActiveNodeStep] = useState(0);
   const [logs, setLogs] = useState([]);
+
+  // Sync theme attribute to document body for global background transition
+  useEffect(() => {
+    if (themeMode === 'light') {
+      document.body.classList.add('theme-light');
+    } else {
+      document.body.classList.remove('theme-light');
+    }
+  }, [themeMode]);
 
   const handleSelectTemplate = (template) => {
     setActiveTemplate(template.id);
@@ -75,9 +96,9 @@ export default function LeadSimulatorApp() {
     setLogs([]);
   };
 
-  const handleTriggerPipeline = () => {
+  const handleTriggerPipeline = async () => {
     if (!formData.name || !formData.phone) {
-      alert('Please enter a Prospect Name and Phone Number to test the pipeline.');
+      alert('Please enter a Prospect Name and Phone Number to test the demo.');
       return;
     }
 
@@ -85,60 +106,80 @@ export default function LeadSimulatorApp() {
     setActiveNodeStep(1);
     setLogs([]);
 
-    const timestamp = new Date().toLocaleTimeString();
+    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-    // Step 1: Webhook Ingestion (0.2s)
+    // Fire REAL Inbound Webhook POST to n8n production engine in background
+    try {
+      fetch('https://n8n.trackkaroai.com/webhook/real-estate-lead-inbound', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lead_name: formData.name,
+          full_name: formData.name,
+          lead_phone: formData.phone,
+          phone_number: formData.phone,
+          email: formData.email || 'prospect@trackkaroai.com',
+          property_interest: formData.project || 'Client Growth Service',
+          budget: currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR,
+          status: 'LIVE_DEMO_INGEST'
+        })
+      }).catch(err => console.log('Live webhook background dispatch:', err));
+    } catch (e) {
+      console.log('Webhook error:', e);
+    }
+
+    // Step 1: Webhook Ingest (0.21s)
     setTimeout(() => {
       setActiveNodeStep(1);
-      setLogs((prev) => [...prev, `[${timestamp}] ⚡ [0.2s] Meta Ad Webhook Ingested: ${formData.name}`]);
-    }, 200);
+      setLogs((prev) => [...prev, `[${timestamp}.210] INGEST: Received POST payload from Meta Ad Form (Source: Meta_Luxury_V4)`]);
+    }, 210);
 
-    // Step 2: GPT-4o Intent Scoring (0.7s)
+    // Step 2: Lead Qualification (0.68s)
     setTimeout(() => {
       setActiveNodeStep(2);
       setLogs((prev) => [
         ...prev,
-        `[${timestamp}] 🤖 [0.7s] GPT-4o Intent Score: 98/100 (HIGH-INTENT VIP BUYER)`,
+        `[${timestamp}.680] QUALIFICATION: Budget validated (${currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR}). Lead Score: TIER_1_HOT`,
       ]);
-    }, 700);
+    }, 680);
 
-    // Step 3: WhatsApp VIP Brochure Trigger (1.4s)
+    // Step 3: WATI / WhatsApp API (1.38s)
     setTimeout(() => {
       setActiveNodeStep(3);
       setLogs((prev) => [
         ...prev,
-        `[${timestamp}] 💬 [1.4s] Meta WhatsApp Cloud API: Delivered PDF Brochure to ${formData.phone}`,
+        `[${timestamp}.380] DISPATCH: WhatsApp Cloud template "vip_brochure_v2" delivered to ${formData.phone} (Status: 200 OK)`,
       ]);
-    }, 1400);
+    }, 1380);
 
-    // Step 4: Broker Telegram Sound Alert (2.1s)
+    // Step 4: Telegram SLA Alert (1.82s)
     setTimeout(() => {
       setActiveNodeStep(4);
       setLogs((prev) => [
         ...prev,
-        `[${timestamp}] 📢 [2.1s] Telegram Alert Pushed to Sales Team Channel`,
+        `[${timestamp}.820] TELEGRAM: Alert routed to broker group "Miami Waterfront Sales Desk"`,
       ]);
-    }, 2100);
+    }, 1820);
 
-    // Step 5: Google Sheet Live Log (2.4s)
+    // Step 5: CRM Sync (2.14s)
     setTimeout(() => {
       setActiveNodeStep(5);
       setLogs((prev) => [
         ...prev,
-        `[${timestamp}] 📊 [2.4s] Google Sheets Database Auto-Synced!`,
+        `[${timestamp}.140] CRM: Appended row #4182 to Google Sheets Master CRM. Total Latency: 2.14s`,
       ]);
       setPipelineState('complete');
 
       try {
         confetti({
-          particleCount: 70,
-          spread: 80,
+          particleCount: 50,
+          spread: 60,
           origin: { y: 0.6 },
         });
       } catch (e) {
         // ignore
       }
-    }, 2400);
+    }, 2140);
   };
 
   const handleReset = () => {
@@ -147,383 +188,411 @@ export default function LeadSimulatorApp() {
     setLogs([]);
   };
 
-  const workflowSteps = [
-    { id: 1, label: 'Meta Webhook', latency: '0.2s', icon: Radio },
-    { id: 2, label: 'GPT-4o Scoring', latency: '0.7s', icon: Sparkles },
-    { id: 3, label: 'WhatsApp PDF', latency: '1.4s', icon: MessageSquare },
-    { id: 4, label: 'Telegram Alert', latency: '2.1s', icon: Bot },
-    { id: 5, label: 'Sheet Auto-Sync', latency: '2.4s', icon: Database },
-  ];
+  const isLight = themeMode === 'light';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-6">
       
-      {/* Top Header / Branding Bar */}
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-zinc-950/90 p-4 rounded-2xl border border-zinc-800 shadow-2xl">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-700 via-zinc-900 to-black p-0.5 shadow-md border border-zinc-700/60 flex items-center justify-center">
-            <Cpu className="w-5 h-5 text-white animate-pulse" />
+      {/* Systems Architect Header */}
+      <header className={`flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 telemetry-card p-4 transition-all ${
+        isLight ? 'bg-white border-[#E2E8F0]' : 'bg-[#0E1015] border-[#1E222D]'
+      }`}>
+        <div className="flex items-center gap-3.5">
+          <div className={`w-10 h-10 rounded border flex items-center justify-center font-bold text-sm font-mono-telemetry ${
+            isLight ? 'bg-[#F1F5F9] border-[#CBD5E1] text-[#0F172A]' : 'bg-[#141720] border-[#2E3648] text-[#F1F3F7]'
+          }`}>
+            MS
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-base tracking-wider text-white">
-                TRACKKARO <span className="text-zinc-400 font-normal">AI</span>
+              <h1 className={`font-extrabold text-base tracking-tight ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>
+                MANGAL SOREN
               </h1>
-              <span className="bg-zinc-900 text-zinc-300 text-[9px] font-mono px-2 py-0.5 rounded-full border border-zinc-700 font-bold uppercase tracking-widest">
-                LIVE DEMO ENGINE
+              <span className={`text-[10px] font-mono-telemetry px-2 py-0.5 rounded border uppercase tracking-wider ${
+                isLight ? 'bg-[#F1F5F9] text-[#475569] border-[#CBD5E1]' : 'bg-[#1E222D] text-[#94A3B8] border-[#2E3648]'
+              }`}>
+                Systems Architect | GTM Infrastructure
               </span>
             </div>
-            <p className="text-[11px] text-zinc-400 font-medium">3-Second High-Ticket Lead Automation Engine</p>
+            <p className="text-[11px] text-[#64748B] font-mono-telemetry flex items-center gap-1.5 mt-0.5">
+              <span>TrackKaro Lead Dispatch Telemetry Console</span>
+              <span>•</span>
+              <span className={isLight ? 'text-[#059669]' : 'text-[#10B981]'}>Cloud Infrastructure: 24/7 Monitored • 99.9% Uptime</span>
+            </p>
           </div>
         </div>
 
-        {/* Currency Switcher & Meta API Badge */}
+        {/* Currency Switcher, Theme Switcher & Direct Contact */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center bg-zinc-900 p-1 rounded-xl border border-zinc-800">
+          {/* Theme Toggle Button */}
+          <button
+            onClick={() => setThemeMode(themeMode === 'light' ? 'dark' : 'light')}
+            className={`px-3 py-1 rounded text-xs font-mono-telemetry font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
+              isLight 
+                ? 'bg-[#F1F5F9] text-[#0F172A] border-[#CBD5E1] hover:bg-[#E2E8F0]' 
+                : 'bg-[#141720] text-[#F1F3F7] border-[#2E3648] hover:bg-[#1E222D]'
+            }`}
+            title="Toggle between Luxury Architectural Light Mode and Industrial Carbon Dark Mode"
+          >
+            {isLight ? <Sun className="w-3.5 h-3.5 text-[#D97706]" /> : <Moon className="w-3.5 h-3.5 text-[#3B82F6]" />}
+            <span>{isLight ? 'Light Mode' : 'Dark Mode'}</span>
+          </button>
+
+          {/* Currency Switcher */}
+          <div className={`flex items-center p-1 rounded border ${isLight ? 'bg-[#F1F5F9] border-[#E2E8F0]' : 'bg-[#141720] border-[#1E222D]'}`}>
             <button
               onClick={() => setCurrencyMode('USD')}
-              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                currencyMode === 'USD' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-400'
+              className={`px-3 py-1 rounded text-xs font-mono-telemetry font-bold transition-all cursor-pointer ${
+                currencyMode === 'USD'
+                  ? isLight ? 'bg-[#0284C7] text-white shadow-sm' : 'bg-[#3B82F6] text-white shadow-sm'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
-              🇺🇸 USD ($)
+              USD ($)
             </button>
             <button
               onClick={() => setCurrencyMode('INR')}
-              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
-                currencyMode === 'INR' ? 'bg-zinc-800 text-white shadow' : 'text-zinc-400'
+              className={`px-3 py-1 rounded text-xs font-mono-telemetry font-bold transition-all cursor-pointer ${
+                currencyMode === 'INR'
+                  ? isLight ? 'bg-[#0284C7] text-white shadow-sm' : 'bg-[#3B82F6] text-white shadow-sm'
+                  : 'text-[#64748B] hover:text-[#0F172A]'
               }`}
             >
-              🇮🇳 INR (₹)
+              INR (₹)
             </button>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full text-xs text-emerald-400 font-mono">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            Meta API Online
-          </div>
+          <a
+            href="https://wa.me/919771783048?text=Hi%20Mangal,%20I%20want%20to%20setup%20the%203-Second%20WhatsApp%20Lead%20Engine%20for%20my%20business"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded text-xs font-mono-telemetry font-bold transition-all cursor-pointer bg-[#059669] hover:bg-[#047857] text-white shadow-sm"
+          >
+            <MessageSquare className="w-3.5 h-3.5 fill-current" />
+            <span>Chat on WhatsApp</span>
+          </a>
+
+          <a
+            href="mailto:mangal.soren@trackkaroai.com?subject=Inquiry%20about%20GTM%20Lead%20Infrastructure"
+            className={`hidden md:flex items-center gap-2 border px-3.5 py-1.5 rounded text-xs font-mono-telemetry cursor-pointer transition-all ${
+              isLight 
+                ? 'bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] border-[#CBD5E1]' 
+                : 'bg-[#141720] hover:bg-[#1E222D] text-[#F1F3F7] border-[#2E3648]'
+            }`}
+          >
+            <User className={`w-3.5 h-3.5 ${isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}`} />
+            Direct Engineer Contact
+          </a>
         </div>
       </header>
 
-      {/* Hero Headline Container */}
-      <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-zinc-800 bg-zinc-950/90 text-center space-y-4 relative overflow-hidden">
+      {/* Hero Telemetry Container */}
+      <div className={`telemetry-card p-6 sm:p-8 text-center space-y-4 transition-all ${
+        isLight ? 'bg-white border-[#E2E8F0]' : 'bg-[#0E1015] border-[#1E222D]'
+      }`}>
         
-        <div className="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-3.5 py-1 rounded-full text-xs font-mono text-zinc-300">
-          <Zap className="w-3.5 h-3.5 text-cyan-400" />
-          <span>Real-Time Webhook Engine</span>
-          <span className="text-zinc-600">•</span>
-          <span className="text-emerald-400 font-bold">&lt; 3-Second Latency</span>
+        {/* Simplified Advertiser Positioning Pill Tag */}
+        <div className={`inline-flex items-center gap-2 px-3.5 py-1.2 rounded font-mono-telemetry text-xs border ${
+          isLight 
+            ? 'bg-[#ECFDF5] border-[#A7F3D0] text-[#059669]' 
+            : 'bg-[#12161F] border-[#1E222D] text-[#10B981]'
+        }`}>
+          <span className={`w-2 h-2 rounded-full animate-pulse ${isLight ? 'bg-[#059669]' : 'bg-[#10B981]'}`}></span>
+          <span className="font-bold uppercase tracking-wider">AUTOMATED LEAD CONVERSION INFRASTRUCTURE FOR ADVERTISERS</span>
         </div>
 
-        <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          3-Second Interactive Lead Simulator
+        {/* Simplified Conversion Headline */}
+        <h2 className={`text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>
+          Stop Losing Ad Leads to Slow Follow-Ups.
         </h2>
-        
-        <p className="text-sm sm:text-base text-zinc-300 font-semibold max-w-2xl mx-auto">
-          Test Instant Meta Ad Lead Routing
+
+        {/* Simplified Conversion Sub-headline */}
+        <p className={`text-xs sm:text-sm font-mono-telemetry max-w-2xl mx-auto leading-relaxed ${isLight ? 'text-[#475569]' : 'text-[#94A3B8]'}`}>
+          We link your Meta &amp; Google ad forms directly to WhatsApp brochures (&lt;1.4s) and instant sales phone alerts. Eliminate the 2-hour response lag before your buyer books with a competitor.
         </p>
 
-        <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-          Submit a test lead below to see how our 3-second automation triggers live WhatsApp brochures & Telegram alerts.
-        </p>
-
-        {/* Live Industry Template Switcher Bar */}
-        <div className="pt-2 max-w-3xl mx-auto">
-          <div className="text-xs font-mono text-zinc-400 mb-2 flex items-center justify-center gap-2">
-            <LayoutTemplate className="w-4 h-4 text-cyan-400" />
-            <span>Select Demo Template or Enter Custom Test Data:</span>
+        {/* Sample Preset Selector */}
+        <div className="pt-2 max-w-xl mx-auto">
+          <div className={`text-[10px] font-mono-telemetry uppercase tracking-wider mb-2 ${isLight ? 'text-[#64748B]' : 'text-[#64748B]'}`}>
+            Select Sample Preset Payload:
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            {templates.map((tpl) => (
-              <button
-                key={tpl.id}
-                onClick={() => handleSelectTemplate(tpl)}
-                className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
-                  activeTemplate === tpl.id
-                    ? 'bg-zinc-800 text-white border-white shadow-lg ring-1 ring-white/20'
-                    : 'bg-zinc-950/60 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-white'
-                }`}
-              >
-                {tpl.name}
-              </button>
-            ))}
+            {templates.map((tpl) => {
+              const TplIcon = tpl.icon;
+              return (
+                <button
+                  key={tpl.id}
+                  onClick={() => handleSelectTemplate(tpl)}
+                  className={`px-3 py-2 rounded text-xs font-mono-telemetry font-bold transition-all border cursor-pointer flex items-center justify-center gap-1.5 ${
+                    activeTemplate === tpl.id
+                      ? isLight ? 'bg-[#F1F5F9] text-[#0F172A] border-[#0284C7]' : 'bg-[#141720] text-[#F1F3F7] border-[#3B82F6]'
+                      : isLight ? 'bg-[#F8FAFC] text-[#64748B] border-[#E2E8F0] hover:text-[#0F172A]' : 'bg-[#0E1015] text-[#64748B] border-[#1E222D] hover:border-[#2E3648] hover:text-[#F1F3F7]'
+                  }`}
+                >
+                  <TplIcon className={`w-3.5 h-3.5 ${isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}`} />
+                  <span>{tpl.name}</span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Feature Highlight Badges */}
-        <div className="pt-2 flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-zinc-300">
-          <div className="flex items-center gap-2 bg-zinc-900 px-3.5 py-2 rounded-xl border border-zinc-800 shadow-sm">
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <span>Instant WhatsApp VIP PDF Brochure</span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-zinc-900 px-3.5 py-2 rounded-xl border border-zinc-800 shadow-sm">
-            <Bot className="w-4 h-4 text-sky-400" />
-            <span>Real-Time Broker Sales Team Alert</span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-zinc-900 px-3.5 py-2 rounded-xl border border-zinc-800 shadow-sm">
-            <Database className="w-4 h-4 text-amber-400" />
-            <span>Google Sheets / CRM Live Auto-Sync</span>
-          </div>
-        </div>
-
-        {/* Interactive Step Nodes Bar */}
-        <div className="pt-4 max-w-4xl mx-auto grid grid-cols-5 gap-2">
-          {workflowSteps.map((step) => {
-            const Icon = step.icon;
-            const isActive = activeNodeStep >= step.id;
-            const isCurrent = activeNodeStep === step.id;
-
-            return (
-              <div
-                key={step.id}
-                className={`p-2.5 rounded-xl border text-center transition-all duration-300 ${
-                  isCurrent
-                    ? 'border-white bg-zinc-900 shadow-lg scale-105'
-                    : isActive
-                    ? 'border-emerald-500/40 bg-zinc-950 text-emerald-400'
-                    : 'border-zinc-800/80 bg-zinc-950/40 text-zinc-600'
-                }`}
-              >
-                <Icon className={`w-4 h-4 mx-auto mb-1 ${isCurrent ? 'text-cyan-400 animate-bounce' : isActive ? 'text-emerald-400' : 'text-zinc-600'}`} />
-                <div className="text-[10px] font-bold truncate text-white">{step.label}</div>
-                <div className="text-[9px] font-mono text-zinc-400 mt-0.5">{step.latency}</div>
-              </div>
-            );
-          })}
-        </div>
+        {/* Interactive n8n Visual Flow Canvas */}
+        <N8nCanvasFlow activeStep={activeNodeStep} isExecuting={pipelineState === 'processing'} themeMode={themeMode} />
       </div>
 
-      {/* Main Grid: Input Form (4 cols) & Live Previews (8 cols) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      {/* Main Grid: Form (4 cols) & 3 Output Channels + Telemetry Drawer (8 cols) */}
+      <div id="demo-section" className="grid grid-cols-1 lg:grid-cols-12 gap-6 scroll-mt-24">
         
-        {/* Left Column: Form */}
+        {/* Left Column: Input Form */}
         <div className="lg:col-span-4 space-y-4">
-          <div className="glass-panel p-5 rounded-2xl border border-zinc-800 bg-zinc-950/90 space-y-4">
-            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-              <span className="text-xs font-bold text-white flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-cyan-400" />
-                Submit Test Lead (Meta Ad Form)
-              </span>
+          <div className={`telemetry-card p-5 space-y-4 transition-all ${isLight ? 'bg-white border-[#E2E8F0]' : 'bg-[#0E1015] border-[#1E222D]'}`}>
+            <div className={`flex items-center justify-between border-b pb-3 ${isLight ? 'border-[#E2E8F0]' : 'border-[#1E222D]'}`}>
+              <div>
+                <span className={`text-xs font-bold flex items-center gap-2 font-mono-telemetry ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>
+                  <UserCheck className={`w-4 h-4 ${isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}`} />
+                  Simulated Webhook Payload Form
+                </span>
+                <span className={`text-[10px] font-mono-telemetry block mt-0.5 ${isLight ? 'text-[#64748B]' : 'text-[#64748B]'}`}>Fictional test data for workflow validation</span>
+              </div>
               <button
                 onClick={handleClearForm}
-                className="text-[10px] font-mono text-zinc-400 hover:text-white underline cursor-pointer"
+                className={`text-[10px] font-mono-telemetry underline cursor-pointer ${isLight ? 'text-[#64748B] hover:text-[#0F172A]' : 'text-[#64748B] hover:text-[#F1F3F7]'}`}
               >
-                Clear Fields
+                Reset
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 font-mono-telemetry">
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">Prospect Full Name</label>
+                <label className={`text-[11px] block mb-1 ${isLight ? 'text-[#475569]' : 'text-[#767E8F]'}`}>Prospect Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. John Doe (Demo Lead)"
+                  placeholder="e.g. Alexander Wright"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-medium"
+                  className={`w-full border rounded px-3 py-2 text-xs focus:outline-none transition-all ${
+                    isLight ? 'bg-[#F8FAFC] border-[#E2E8F0] text-[#0F172A] focus:border-[#0284C7]' : 'bg-[#08090C] border-[#1E222D] text-[#F1F3F7] focus:border-[#3B82F6]'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">WhatsApp Phone Number (Test)</label>
+                <label className={`text-[11px] block mb-1 ${isLight ? 'text-[#475569]' : 'text-[#767E8F]'}`}>WhatsApp Phone Number</label>
                 <input
                   type="text"
-                  placeholder="e.g. +1 555-019-2831"
+                  placeholder="e.g. +971 50 000 9999"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-mono"
+                  className={`w-full border rounded px-3 py-2 text-xs focus:outline-none transition-all ${
+                    isLight ? 'bg-[#F8FAFC] border-[#E2E8F0] text-[#0F172A] focus:border-[#0284C7]' : 'bg-[#08090C] border-[#1E222D] text-[#F1F3F7] focus:border-[#3B82F6]'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">Target Project / Interest</label>
+                <label className={`text-[11px] block mb-1 ${isLight ? 'text-[#475569]' : 'text-[#767E8F]'}`}>Project / Enquiry Topic</label>
                 <input
                   type="text"
-                  placeholder="e.g. Luxury Off-Plan Penthouse"
+                  placeholder="e.g. Dubai Marina Luxury Off-Plan Penthouse"
                   value={formData.project}
                   onChange={(e) => setFormData({ ...formData, project: e.target.value })}
-                  className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-medium"
+                  className={`w-full border rounded px-3 py-2 text-xs focus:outline-none transition-all ${
+                    isLight ? 'bg-[#F8FAFC] border-[#E2E8F0] text-[#0F172A] focus:border-[#0284C7]' : 'bg-[#08090C] border-[#1E222D] text-[#F1F3F7] focus:border-[#3B82F6]'
+                  }`}
                 />
               </div>
 
               <div>
-                <label className="text-[11px] font-mono text-zinc-400">Target Investment Budget</label>
+                <label className={`text-[11px] block mb-1 ${isLight ? 'text-[#475569]' : 'text-[#767E8F]'}`}>Stated Investment Range</label>
                 <input
                   type="text"
-                  placeholder="e.g. $850,000 - $1.5M or ₹5 Crore"
+                  placeholder="e.g. $850,000 - $1.5M"
                   value={currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR}
                   onChange={(e) =>
                     currencyMode === 'USD'
                       ? setFormData({ ...formData, budgetUSD: e.target.value })
                       : setFormData({ ...formData, budgetINR: e.target.value })
                   }
-                  className="w-full mt-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white transition-all font-mono"
+                  className={`w-full border rounded px-3 py-2 text-xs focus:outline-none transition-all ${
+                    isLight ? 'bg-[#F8FAFC] border-[#E2E8F0] text-[#0F172A] focus:border-[#0284C7]' : 'bg-[#08090C] border-[#1E222D] text-[#F1F3F7] focus:border-[#3B82F6]'
+                  }`}
                 />
               </div>
             </div>
 
-            {/* Trigger Button */}
+            {/* Execute Button */}
             <div className="pt-2">
               {pipelineState === 'processing' ? (
                 <button
                   disabled
-                  className="w-full bg-zinc-800 text-zinc-400 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 cursor-wait border border-zinc-700"
+                  className={`w-full font-bold py-3 rounded text-xs font-mono-telemetry flex items-center justify-center gap-2 cursor-wait border ${
+                    isLight ? 'bg-[#F1F5F9] text-[#64748B] border-[#E2E8F0]' : 'bg-[#141720] text-[#767E8F] border-[#1E222D]'
+                  }`}
                 >
-                  <Zap className="w-4 h-4 text-cyan-400 animate-spin" />
-                  Executing 3-Second Workflow...
+                  <RefreshCw className="w-4 h-4 text-[#D97706] animate-spin" />
+                  Executing Pipeline...
                 </button>
               ) : pipelineState === 'complete' ? (
                 <button
                   onClick={handleReset}
-                  className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border border-zinc-700"
+                  className={`w-full font-bold py-3 rounded text-xs font-mono-telemetry flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                    isLight ? 'bg-[#F1F5F9] hover:bg-[#E2E8F0] text-[#0F172A] border-[#CBD5E1]' : 'bg-[#141720] hover:bg-[#1E222D] text-white border-[#2E3648]'
+                  }`}
                 >
-                  Reset & Test Again
+                  Reset Telemetry Session
                 </button>
               ) : (
                 <button
                   onClick={handleTriggerPipeline}
-                  className="w-full bg-white hover:bg-zinc-200 text-zinc-950 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-white/10"
+                  className={`w-full font-bold py-3 rounded text-xs font-mono-telemetry flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm text-white ${
+                    isLight ? 'bg-[#0284C7] hover:bg-[#0369A1] border border-[#0284C7]' : 'bg-[#3B82F6] hover:bg-[#2563EB] border border-[#3B82F6]/50'
+                  }`}
                 >
                   <Play className="w-4 h-4 fill-current" />
-                  Trigger 3-Second Automated Pipeline
+                  Run Sample Ingest Demo
                 </button>
               )}
             </div>
           </div>
-
-          {/* System Execution Logs */}
-          <div className="glass-panel p-4 rounded-2xl border border-zinc-800 bg-zinc-950/90 space-y-2">
-            <div className="text-xs font-bold text-zinc-400 font-mono flex items-center justify-between">
-              <span>Execution Logs:</span>
-              <span className="text-emerald-400 text-[10px] font-mono">{pipelineState === 'complete' ? 'COMPLETE (2.4s)' : 'READY'}</span>
-            </div>
-
-            <div className="bg-zinc-900 p-3 rounded-xl border border-zinc-800 font-mono text-[11px] text-zinc-300 space-y-1.5 min-h-[110px] max-h-[160px] overflow-y-auto">
-              {logs.length === 0 ? (
-                <div className="text-zinc-600 text-center py-8">Awaiting form submission trigger...</div>
-              ) : (
-                logs.map((log, i) => (
-                  <div key={i} className="text-emerald-400 leading-snug">
-                    {log}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Right Column: Previews */}
-        <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          {/* WhatsApp Preview Screen */}
-          <div className="glass-panel p-5 rounded-2xl border border-zinc-800 bg-zinc-950/90 flex flex-col justify-between space-y-4">
-            <div>
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                <span className="text-xs font-bold text-emerald-400 flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4" />
-                  Client's WhatsApp (&lt; 3s Auto-Reply)
-                </span>
-                <span className="text-[10px] font-mono text-zinc-500">Official Meta API</span>
+        {/* Right Column: 3 Live Output Channels + Telemetry Drawer */}
+        <div className="lg:col-span-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            {/* Card 1: WhatsApp Business Chat Mockup */}
+            <div className={`p-3.5 space-y-2.5 flex flex-col justify-between min-h-[380px] rounded border ${
+              isLight ? 'bg-[#E5DDD5] border-[#CBD5E1]' : 'phone-glass-frame'
+            }`}>
+              <div className={`rounded p-2 border flex items-center justify-between font-mono-telemetry ${
+                isLight ? 'bg-white border-[#E2E8F0] shadow-sm' : 'bg-[#0E1015] border-[#1E222D]'
+              }`}>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-6 h-6 rounded bg-[#059669]/20 border border-[#059669]/30 flex items-center justify-center text-[#059669] font-bold text-[10px]">
+                    TK
+                  </div>
+                  <div>
+                    <div className={`text-[11px] font-bold truncate max-w-[100px] ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>TrackKaro Systems</div>
+                    <div className="text-[9px] text-[#059669]">WhatsApp API</div>
+                  </div>
+                </div>
+                <span className={`text-[8px] px-1.5 py-0.5 rounded ${isLight ? 'bg-[#F1F5F9] text-[#64748B]' : 'bg-[#141720] text-[#767E8F]'}`}>WATI</span>
               </div>
 
-              {pipelineState === 'complete' ? (
-                <div className="mt-4 space-y-3 bg-zinc-900/90 p-4 rounded-xl border border-zinc-800">
-                  <div className="text-[10px] font-mono text-zinc-500 text-center">
-                    Today • {new Date().toLocaleTimeString()}
+              <div className="space-y-2 py-1 flex-1 flex flex-col justify-end">
+                <div className={`rounded p-2.5 text-[11px] space-y-2 shadow-sm ${
+                  isLight ? 'bg-[#DCF8C6] border border-[#BBF7D0] text-[#0F172A]' : 'bg-[#0b141a] border border-[#10B981]/30 text-[#F1F3F7]'
+                }`}>
+                  <div className="leading-tight">
+                    Hello <span className="font-bold text-[#059669]">{formData.name}</span>! PDF brochure dispatched.
                   </div>
 
-                  <div className="bg-emerald-950/40 border border-emerald-500/20 p-3.5 rounded-xl text-xs space-y-2.5 text-zinc-200">
-                    <div className="font-bold text-emerald-400 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" /> Instant WhatsApp VIP PDF Brochure
+                  <div className={`rounded p-2 flex items-center justify-between gap-1.5 font-mono-telemetry ${
+                    isLight ? 'bg-white border border-[#E2E8F0]' : 'bg-[#0E1015] border border-[#10B981]/40'
+                  }`}>
+                    <div className="flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5 text-[#059669] shrink-0" />
+                      <div>
+                        <div className={`text-[10px] font-bold truncate max-w-[90px] ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>Brochure.pdf</div>
+                        <div className="text-[8px] text-[#64748B]">2.4 MB</div>
+                      </div>
                     </div>
-                    <p className="leading-relaxed">
-                      Hello <strong className="text-white">{formData.name}</strong>, thank you for requesting details for{' '}
-                      <strong className="text-white">{formData.project}</strong> ({currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR}).
-                    </p>
-                    <div className="bg-zinc-900 p-2.5 rounded-lg border border-zinc-800 text-[11px] font-mono flex items-center justify-between">
-                      <span className="text-zinc-300">📄 VIP_Brochure_Floorplan_2026.pdf</span>
-                      <span className="text-emerald-400 text-[10px] font-bold">DOWNLOAD</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-400 pt-1">
-                      Our Senior Director will connect with you shortly. Or click below to confirm your viewing schedule:
-                    </p>
-                    <a
-                      href={`https://wa.me/?text=Hi%20I%20am%20${encodeURIComponent(formData.name)}%20interested%20in%20${encodeURIComponent(formData.project)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="block text-center bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg text-xs transition-all mt-2"
-                    >
-                      💬 Click to Confirm Viewing on WhatsApp
-                    </a>
+                    <span className="text-[8px] text-[#059669] bg-[#059669]/15 px-1.5 py-0.5 rounded font-bold">PDF</span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-[8px] text-[#64748B] font-mono-telemetry pt-0.5">
+                    <span>13:28:03</span>
+                    <span className="text-[#059669]">Delivered (~1.38s)</span>
                   </div>
                 </div>
-              ) : (
-                <div className="mt-12 text-center text-zinc-600 py-12 text-xs font-mono">
-                  Awaiting test form trigger...
+              </div>
+            </div>
+
+            {/* Card 2: Desktop Telegram SLA Alert Mockup */}
+            <div className={`p-3.5 space-y-2.5 flex flex-col justify-between rounded border ${
+              isLight ? 'bg-white border-[#E2E8F0] shadow-sm' : 'telegram-desktop-frame'
+            }`}>
+              <div>
+                <div className={`flex items-center justify-between border-b pb-2 font-mono-telemetry ${isLight ? 'border-[#E2E8F0]' : 'border-[#1E222D]'}`}>
+                  <div className="flex items-center gap-1.5">
+                    <Radio className={`w-3.5 h-3.5 animate-pulse ${isLight ? 'text-[#D97706]' : 'text-[#F59E0B]'}`} />
+                    <span className={`text-[11px] font-bold ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>Telegram SLA Alert</span>
+                  </div>
+                  <span className={`text-[8px] px-1.5 py-0.5 rounded ${isLight ? 'bg-[#F1F5F9] text-[#64748B]' : 'bg-[#141720] text-[#767E8F]'}`}>Bot</span>
                 </div>
-              )}
-            </div>
 
-            <div className="text-[10px] text-zinc-500 font-mono text-center pt-2 border-t border-zinc-900">
-              Trigger Speed: &lt; 1.4s • Zero Manual Work
-            </div>
-          </div>
-
-          {/* Telegram Preview Screen */}
-          <div className="glass-panel p-5 rounded-2xl border border-zinc-800 bg-zinc-950/90 flex flex-col justify-between space-y-4">
-            <div>
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
-                <span className="text-xs font-bold text-sky-400 flex items-center gap-2">
-                  <Bot className="w-4 h-4" />
-                  Real-Time Broker Sales Team Alert
-                </span>
-                <span className="text-[10px] font-mono text-zinc-500">Telegram Sound Alert</span>
+                <div className={`mt-2.5 p-2.5 rounded border space-y-1 font-mono-telemetry text-[10px] ${
+                  isLight ? 'bg-[#F8FAFC] border-[#E2E8F0]' : 'bg-[#08090C] border-[#1E222D]'
+                }`}>
+                  <div className={`font-bold border-b pb-1 ${isLight ? 'text-[#0284C7] border-[#E2E8F0]' : 'text-[#3B82F6] border-[#1E222D]'}`}>
+                    NEW LEAD DISPATCH
+                  </div>
+                  <div className={`space-y-0.5 ${isLight ? 'text-[#475569]' : 'text-[#94A3B8]'}`}>
+                    <div>NAME: <span className={`font-bold truncate block ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>{formData.name}</span></div>
+                    <div>PHONE: <span className={isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}>{formData.phone}</span></div>
+                    <div>BUDGET: <span className={`font-bold ${isLight ? 'text-[#059669]' : 'text-[#10B981]'}`}>{currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR}</span></div>
+                  </div>
+                </div>
               </div>
 
-              {pipelineState === 'complete' ? (
-                <div className="mt-4 space-y-3 bg-zinc-900/90 p-4 rounded-xl border border-zinc-800">
-                  <div className="text-[10px] font-mono text-sky-400 text-center font-bold">
-                    🔔 HOT BUYER ALERT • SOUND NOTIFICATION
-                  </div>
-
-                  <div className="bg-sky-950/40 border border-sky-500/20 p-3.5 rounded-xl text-xs space-y-2 text-zinc-200">
-                    <div className="font-bold text-white flex items-center justify-between">
-                      <span>👤 {formData.name}</span>
-                      <span className="bg-emerald-500/20 text-emerald-400 text-[10px] px-2 py-0.5 rounded font-mono font-bold">
-                        SCORE: 98/100
-                      </span>
-                    </div>
-                    <div className="text-[11px] font-mono text-zinc-300 space-y-1">
-                      <div>📍 Project: {formData.project}</div>
-                      <div>💰 Budget: {currencyMode === 'USD' ? formData.budgetUSD : formData.budgetINR}</div>
-                      <div>📧 Email: {formData.email}</div>
-                      <div>📞 Phone: {formData.phone}</div>
-                    </div>
-                    <a
-                      href={`tel:${formData.phone}`}
-                      className="block text-center bg-sky-600 hover:bg-sky-500 text-white font-bold py-2 rounded-lg text-xs transition-all mt-2"
-                    >
-                      📞 Click to Call Buyer Now
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-12 text-center text-zinc-600 py-12 text-xs font-mono">
-                  Broker alert idle...
-                </div>
-              )}
+              <button className={`w-full font-extrabold py-2 rounded text-[11px] font-mono-telemetry flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm text-white ${
+                isLight ? 'bg-[#059669] hover:bg-[#047857]' : 'bg-[#10B981] hover:bg-[#059669] text-[#08090C]'
+              }`}>
+                <PhoneCall className="w-3 h-3 fill-current" />
+                <span>Call Lead (Instant SLA)</span>
+              </button>
             </div>
 
-            <div className="text-[10px] text-zinc-500 font-mono text-center pt-2 border-t border-zinc-900">
-              Pushed to Team Telegram Channel in 2.1s
+            {/* Card 3: Google Sheets Live CRM Auto-Sync Panel */}
+            <div className={`p-3.5 space-y-2.5 flex flex-col justify-between rounded border ${
+              isLight ? 'bg-white border-[#E2E8F0] shadow-sm' : 'telegram-desktop-frame'
+            }`}>
+              <div>
+                <div className={`flex items-center justify-between border-b pb-2 font-mono-telemetry ${isLight ? 'border-[#E2E8F0]' : 'border-[#1E222D]'}`}>
+                  <div className="flex items-center gap-1.5">
+                    <Database className={`w-3.5 h-3.5 ${isLight ? 'text-[#059669]' : 'text-[#10B981]'}`} />
+                    <span className={`text-[11px] font-bold ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>Google Sheets CRM</span>
+                  </div>
+                  <span className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${isLight ? 'bg-[#059669]/15 text-[#059669]' : 'bg-[#10B981]/15 text-[#10B981]'}`}>Auto CRM</span>
+                </div>
+
+                <div className={`mt-2.5 p-2.5 rounded border space-y-1 font-mono-telemetry text-[10px] ${
+                  isLight ? 'bg-[#F8FAFC] border-[#E2E8F0]' : 'bg-[#08090C] border-[#1E222D]'
+                }`}>
+                  <div className={`font-bold border-b pb-1 flex items-center justify-between ${
+                    isLight ? 'text-[#059669] border-[#E2E8F0]' : 'text-[#10B981] border-[#1E222D]'
+                  }`}>
+                    <span>CRM ROW #4182</span>
+                    <span className="text-[8px] text-[#64748B]">2.14s SYNC</span>
+                  </div>
+                  <div className={`space-y-0.5 ${isLight ? 'text-[#475569]' : 'text-[#94A3B8]'}`}>
+                    <div>TIMESTAMP: <span className={isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}>13:28:04</span></div>
+                    <div>NAME: <span className={`font-bold truncate block ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>{formData.name}</span></div>
+                    <div>PHONE: <span className="text-[#64748B]">{formData.phone}</span></div>
+                    <div>STATUS: <span className={`font-bold ${isLight ? 'text-[#059669]' : 'text-[#10B981]'}`}>200 OK</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={`p-2 rounded text-[9px] font-mono-telemetry text-center ${
+                isLight ? 'bg-[#F1F5F9] border border-[#E2E8F0] text-[#64748B]' : 'bg-[#141720] border border-[#1E222D] text-[#94A3B8]'
+              }`}>
+                Google Sheets Auto-Sync (~2.14s)
+              </div>
             </div>
+
           </div>
+
+          {/* Dual Tab Telemetry Drawer */}
+          <TelemetryDrawer logs={logs} formData={formData} currencyMode={currencyMode} themeMode={themeMode} />
 
         </div>
 
       </div>
+
+      {/* Speed-to-Lead Revenue Leak Audit Section */}
+      <RevenueLeakAudit themeMode={themeMode} />
 
     </div>
   );
