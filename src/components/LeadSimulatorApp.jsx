@@ -350,10 +350,12 @@ export default function LeadSimulatorApp() {
             <div className={`flex items-center justify-between border-b pb-3 ${isLight ? 'border-[#E2E8F0]' : 'border-[#1E222D]'}`}>
               <div>
                 <span className={`text-xs font-bold flex items-center gap-2 font-mono-telemetry ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>
-                  <UserCheck className={`w-4 h-4 ${isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}`} />
-                  Simulated Webhook Payload Form
+                  <Zap className={`w-4 h-4 ${isLight ? 'text-[#059669]' : 'text-[#10B981]'}`} />
+                  TEST LIVE INGEST FORM (Enter Details)
                 </span>
-                <span className={`text-[10px] font-mono-telemetry block mt-0.5 ${isLight ? 'text-[#64748B]' : 'text-[#64748B]'}`}>Fictional test data for workflow validation</span>
+                <span className={`text-[10px] font-mono-telemetry block mt-0.5 font-bold ${isLight ? 'text-[#059669]' : 'text-[#10B981]'}`}>
+                  ⚡ Enter your real WhatsApp phone number to test live &lt;1.4s dispatch!
+                </span>
               </div>
               <button
                 onClick={handleClearForm}
