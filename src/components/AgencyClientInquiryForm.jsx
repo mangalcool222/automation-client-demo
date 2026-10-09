@@ -81,7 +81,7 @@ export default function AgencyClientInquiryForm({ themeMode = 'light' }) {
           </h3>
 
           <p className={`text-xs sm:text-sm font-mono-telemetry max-w-xl mx-auto ${isLight ? 'text-[#64748B]' : 'text-[#94A3B8]'}`}>
-            Fill out the form below. Your request immediately triggers our n8n telemetry engine, logs to our live CRM, and alerts Mangal Soren's desk within 1.4 seconds.
+            Fill out your details below to discuss an instant lead response setup for your business.
           </p>
         </div>
 
@@ -211,12 +211,12 @@ export default function AgencyClientInquiryForm({ themeMode = 'light' }) {
                 {status === 'submitting' ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Routing Ingest Payload to Mangal Soren...</span>
+                    <span>Submitting inquiry...</span>
                   </>
                 ) : (
                   <>
                     <Send className="w-4 h-4 fill-current" />
-                    <span>Submit Inquiry &amp; Dispatch Alert (&lt;1.4s)</span>
+                    <span>Book Automation Setup</span>
                   </>
                 )}
               </button>
