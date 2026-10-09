@@ -351,10 +351,10 @@ export default function LeadSimulatorApp() {
               <div>
                 <span className={`text-xs font-bold flex items-center gap-2 font-mono-telemetry ${isLight ? 'text-[#0F172A]' : 'text-[#F1F3F7]'}`}>
                   <Zap className={`w-4 h-4 ${isLight ? 'text-[#0284C7]' : 'text-[#3B82F6]'}`} />
-                  INTERACTIVE TELEMETRY SIMULATOR
+                  INTERACTIVE PIPELINE SIMULATOR
                 </span>
-                <span className={`text-[10px] font-mono-telemetry block mt-0.5 ${isLight ? 'text-[#475569]' : 'text-[#94A3B8]'}`}>
-                  Test real-time payload ingestion, &lt;1.4s dispatch logic, &amp; CRM auto-logging
+                <span className={`text-[10px] font-mono-telemetry block mt-0.5 leading-tight ${isLight ? 'text-[#475569]' : 'text-[#94A3B8]'}`}>
+                  Test our &lt;1.4s backend logic live. See how incoming leads trigger WhatsApp dispatches, Telegram sales alerts, and CRM sync in real time.
                 </span>
               </div>
               <button
@@ -452,7 +452,7 @@ export default function LeadSimulatorApp() {
                   }`}
                 >
                   <Play className="w-4 h-4 fill-current" />
-                  Run Sample Ingest Demo
+                  Run Live Pipeline Simulation
                 </button>
               )}
             </div>
