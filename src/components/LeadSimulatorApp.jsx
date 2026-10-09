@@ -9,6 +9,7 @@ import confetti from 'canvas-confetti';
 import N8nCanvasFlow from './N8nCanvasFlow';
 import TelemetryDrawer from './TelemetryDrawer';
 import RevenueLeakAudit from './RevenueLeakAudit';
+import AgencyClientInquiryForm from './AgencyClientInquiryForm';
 
 export default function LeadSimulatorApp() {
   const templates = [
@@ -595,6 +596,9 @@ export default function LeadSimulatorApp() {
 
       {/* Speed-to-Lead Revenue Leak Audit Section */}
       <RevenueLeakAudit themeMode={themeMode} />
+
+      {/* Real Agency Client Booking Form */}
+      <AgencyClientInquiryForm themeMode={themeMode} />
 
     </div>
   );
