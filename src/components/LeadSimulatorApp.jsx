@@ -10,6 +10,7 @@ import N8nCanvasFlow from './N8nCanvasFlow';
 import TelemetryDrawer from './TelemetryDrawer';
 import RevenueLeakAudit from './RevenueLeakAudit';
 import AgencyClientInquiryForm from './AgencyClientInquiryForm';
+import CustomWorkflowCTA from './CustomWorkflowCTA';
 
 export default function LeadSimulatorApp() {
   const templates = [
@@ -599,6 +600,9 @@ export default function LeadSimulatorApp() {
 
       {/* Real Agency Client Booking Form */}
       <AgencyClientInquiryForm themeMode={themeMode} />
+
+      {/* Personal & Professional Custom Workflow Consultation CTA */}
+      <CustomWorkflowCTA themeMode={themeMode} />
 
     </div>
   );
