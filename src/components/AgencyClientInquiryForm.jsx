@@ -25,19 +25,20 @@ export default function AgencyClientInquiryForm({ themeMode = 'light' }) {
     setStatus('submitting');
 
     try {
-      const response = await fetch('https://n8n.trackkaroai.com/webhook/real-estate-lead-inbound', {
+      const response = await fetch('https://n8n.trackkaroai.com/webhook/gtm-agency-lead-inbound', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           lead_name: formData.name,
           full_name: formData.name,
+          company: formData.company || 'Direct Client Inquiry',
           lead_phone: formData.phone,
           phone_number: formData.phone,
           lead_email: formData.email,
           email: formData.email,
-          property_interest: `AGENCY CLIENT SETUP: ${formData.company || 'Direct Prospect'}`,
+          property_interest: `GTM AGENCY CLIENT SETUP: ${formData.company || 'Direct Inquiry'}`,
           budget: formData.adSpend,
-          status: 'REAL_CLIENT_INQUIRY'
+          status: 'REAL_AGENCY_CLIENT_INQUIRY'
         })
       });
 
